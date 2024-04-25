@@ -4,10 +4,7 @@ use std::hash::Hash;
 
 /// Node is a wrapper around a element in the disjoin sets with parent and rank.
 #[derive(Clone, Debug)]
-pub struct Node<T>
-where
-    T: Copy + Eq + Hash + Debug,
-{
+pub struct Node<T: Copy> {
     item: T,
     // Use `Cell` for internal mutability.
     /// A node is the representative of the set if its parent is itself.
