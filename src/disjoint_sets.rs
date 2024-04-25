@@ -108,8 +108,8 @@ impl<T> DisjointSets<T> {
     }
 }
 
-unsafe impl<T> Send for DisjointSets<T> where T: Copy + Eq + Hash + Debug {}
-unsafe impl<T> Sync for DisjointSets<T> where T: Copy + Eq + Hash + Debug {}
+unsafe impl<T> Send for DisjointSets<T> where T: Send {}
+unsafe impl<T> Sync for DisjointSets<T> where T: Sync {}
 
 #[cfg(test)]
 mod tests {
