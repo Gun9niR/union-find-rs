@@ -34,7 +34,7 @@ impl<T> UnionFind<T> for DisjointSets<T>
 where
     T: Copy + Eq + Hash + Debug,
 {
-    fn find_set(&self, item: T) -> Option<T> {
+    fn find_set(&mut self, item: T) -> Option<T> {
         let node = self.nodes.get(&item)?;
         Some(self.find_set_inner(node))
     }
@@ -89,6 +89,9 @@ where
         }
     }
 }
+
+unsafe impl<T> Send for DisjointSets<T> where T: Copy + Eq + Hash + Debug {}
+unsafe impl<T> Sync for DisjointSets<T> where T: Copy + Eq + Hash + Debug {}
 
 #[cfg(test)]
 mod tests {

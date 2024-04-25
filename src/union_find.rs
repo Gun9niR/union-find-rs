@@ -2,7 +2,7 @@ pub trait UnionFind<T: Copy> {
     /// Find the representative of the set containing `item`, if any.
     ///
     /// If item does not exist, return `None`.
-    fn find_set(&self, item: T) -> Option<T>;
+    fn find_set(&mut self, item: T) -> Option<T>;
 
     /// Create a new set containing only `item`. If `item` already exists in
     /// the disjoint sets, an error is returned.
