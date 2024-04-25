@@ -7,7 +7,7 @@ use crate::union_find::{Error, Result, UnionFind};
 
 /// Disjoint sets data structure that implements union-find with
 /// path compression and union by rank.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default)]
 pub struct DisjointSets<T>
 where
     T: Copy + Eq + Hash + Debug,
