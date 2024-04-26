@@ -33,6 +33,13 @@ where
     pub fn contains(&self, item: &T) -> bool {
         self.item_to_id.get(item).is_some()
     }
+
+    pub fn set_size(&mut self, item: &T) -> Result<usize> {
+        let id = *self.item_to_id.get(item).ok_or(Error::ItemNotFound)?;
+        let repr = self.find_repr_id(id);
+        let node = self.nodes.get(&repr).unwrap();
+        Ok(node.rank() as usize)
+    }
 }
 
 impl<T> UnionFind<T> for DisjointSets<T>
@@ -42,8 +49,8 @@ where
     fn same_set(&mut self, x: &T, y: &T) -> Result<bool> {
         let x_id = *self.item_to_id.get(x).ok_or(Error::ItemNotFound)?;
         let y_id = *self.item_to_id.get(y).ok_or(Error::ItemNotFound)?;
-        let x_repr = self.find_repr(x_id);
-        let y_repr = self.find_repr(y_id);
+        let x_repr = self.find_repr_id(x_id);
+        let y_repr = self.find_repr_id(y_id);
         Ok(x_repr == y_repr)
     }
 
@@ -63,8 +70,8 @@ where
     fn union(&mut self, x: &T, y: &T) -> Result<()> {
         let x_id = *self.item_to_id.get(x).ok_or(Error::ItemNotFound)?;
         let y_id = *self.item_to_id.get(y).ok_or(Error::ItemNotFound)?;
-        let x_repr = self.find_repr(x_id);
-        let y_repr = self.find_repr(y_id);
+        let x_repr = self.find_repr_id(x_id);
+        let y_repr = self.find_repr_id(y_id);
 
         if x_repr == y_repr {
             return Ok(());
@@ -91,7 +98,7 @@ impl<T> DisjointSets<T> {
     /// compression along the way.
     ///
     /// Assumes `id` exists.
-    fn find_repr(&mut self, id: Id) -> Id {
+    fn find_repr_id(&mut self, id: Id) -> Id {
         let node = self.nodes.get(&id).unwrap();
         self.find_repr_inner(node)
     }
@@ -143,10 +150,16 @@ mod tests {
         sets.union(&1, &2).unwrap();
         assert!(sets.same_set(&1, &2).unwrap());
         assert!(!sets.same_set(&1, &3).unwrap());
+        assert_eq!(sets.set_size(&1).unwrap(), 2);
+        assert_eq!(sets.set_size(&2).unwrap(), 2);
+        assert_eq!(sets.set_size(&3).unwrap(), 1);
         // (1, 2), (3, 4), (5)
         sets.union(&3, &4).unwrap();
         assert!(sets.same_set(&3, &4).unwrap());
         assert!(!sets.same_set(&1, &3).unwrap());
+        assert_eq!(sets.set_size(&3).unwrap(), 2);
+        assert_eq!(sets.set_size(&4).unwrap(), 2);
+        assert_eq!(sets.set_size(&5).unwrap(), 1);
         // (1, 2, 3, 4), (5)
         sets.union(&1, &3).unwrap();
         assert!(sets.same_set(&1, &2).unwrap());
@@ -154,6 +167,11 @@ mod tests {
         assert!(sets.same_set(&2, &3).unwrap());
         assert!(sets.same_set(&2, &4).unwrap());
         assert!(!sets.same_set(&4, &5).unwrap());
+        assert_eq!(sets.set_size(&1).unwrap(), 4);
+        assert_eq!(sets.set_size(&2).unwrap(), 4);
+        assert_eq!(sets.set_size(&3).unwrap(), 4);
+        assert_eq!(sets.set_size(&4).unwrap(), 4);
+        assert_eq!(sets.set_size(&5).unwrap(), 1);
         // (1, 2, 3, 4. 5)
         sets.union(&1, &5).unwrap();
         assert!(sets.same_set(&1, &2).unwrap());
@@ -161,5 +179,10 @@ mod tests {
         assert!(sets.same_set(&3, &4).unwrap());
         assert!(sets.same_set(&4, &5).unwrap());
         assert!(sets.same_set(&1, &5).unwrap());
+        assert_eq!(sets.set_size(&1).unwrap(), 5);
+        assert_eq!(sets.set_size(&2).unwrap(), 5);
+        assert_eq!(sets.set_size(&3).unwrap(), 5);
+        assert_eq!(sets.set_size(&4).unwrap(), 5);
+        assert_eq!(sets.set_size(&5).unwrap(), 5);
     }
 }
