@@ -40,6 +40,17 @@ where
         let node = self.nodes.get(&repr).unwrap();
         Ok(node.rank() as usize)
     }
+
+    pub fn num_sets(&self) -> usize {
+        self.nodes
+            .values()
+            .filter(|n| n.is_representative())
+            .count()
+    }
+
+    pub fn num_items(&self) -> usize {
+        self.item_to_id.len()
+    }
 }
 
 impl<T> UnionFind<T> for DisjointSets<T>
@@ -135,6 +146,8 @@ mod tests {
         sets.make_set(4).unwrap();
         sets.make_set(5).unwrap();
 
+        assert_eq!(sets.num_items(), 5);
+
         assert!(sets.contains(&1));
         assert!(sets.contains(&2));
         assert!(sets.contains(&3));
@@ -153,6 +166,7 @@ mod tests {
         assert_eq!(sets.set_size(&1).unwrap(), 2);
         assert_eq!(sets.set_size(&2).unwrap(), 2);
         assert_eq!(sets.set_size(&3).unwrap(), 1);
+        assert_eq!(sets.num_sets(), 4);
         // (1, 2), (3, 4), (5)
         sets.union(&3, &4).unwrap();
         assert!(sets.same_set(&3, &4).unwrap());
@@ -160,6 +174,7 @@ mod tests {
         assert_eq!(sets.set_size(&3).unwrap(), 2);
         assert_eq!(sets.set_size(&4).unwrap(), 2);
         assert_eq!(sets.set_size(&5).unwrap(), 1);
+        assert_eq!(sets.num_sets(), 3);
         // (1, 2, 3, 4), (5)
         sets.union(&1, &3).unwrap();
         assert!(sets.same_set(&1, &2).unwrap());
@@ -172,6 +187,7 @@ mod tests {
         assert_eq!(sets.set_size(&3).unwrap(), 4);
         assert_eq!(sets.set_size(&4).unwrap(), 4);
         assert_eq!(sets.set_size(&5).unwrap(), 1);
+        assert_eq!(sets.num_sets(), 2);
         // (1, 2, 3, 4. 5)
         sets.union(&1, &5).unwrap();
         assert!(sets.same_set(&1, &2).unwrap());
@@ -184,5 +200,6 @@ mod tests {
         assert_eq!(sets.set_size(&3).unwrap(), 5);
         assert_eq!(sets.set_size(&4).unwrap(), 5);
         assert_eq!(sets.set_size(&5).unwrap(), 5);
+        assert_eq!(sets.num_sets(), 1);
     }
 }
